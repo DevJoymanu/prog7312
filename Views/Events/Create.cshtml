@@ -1,0 +1,110 @@
+﻿@model prog7312_st10161149_part1.Models.Event
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="form-container show">
+    <a asp-action="Index" class="back-button">← Back to Events</a>
+
+    <div class="form-header">
+        <h2 class="form-title">➕ Create New Event</h2>
+        <p class="form-subtitle">Add a new community event or announcement</p>
+    </div>
+
+    <form asp-action="Create" method="post" id="eventForm">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="Title" class="form-label">📋 Event Title</label>
+            <input asp-for="Title" class="form-input" placeholder="Enter event title" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Category" class="form-label">🏷️ Event Category</label>
+            <select asp-for="Category" class="form-select">
+                <option value="">Select a category</option>
+                @foreach (var category in ViewBag.Categories as Dictionary<string, string>)
+                {
+                    <option value="@category.Key">@category.Value</option>
+                }
+            </select>
+            <span asp-validation-for="Category" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="EventDate" class="form-label">📅 Event Date & Time</label>
+                <input asp-for="EventDate" type="datetime-local" class="form-input" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Location" class="form-label">📍 Location (Optional)</label>
+                <input asp-for="Location" class="form-input" placeholder="Enter event location" />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description" class="form-label">📝 Event Description</label>
+            <textarea asp-for="Description" class="form-textarea" placeholder="Provide detailed information about the event..." rows="6"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="OrganizerName" class="form-label">👤 Organizer Name (Optional)</label>
+                <input asp-for="OrganizerName" class="form-input" placeholder="Enter organizer name" />
+                <span asp-validation-for="OrganizerName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ContactEmail" class="form-label">📧 Contact Email (Optional)</label>
+                <input asp-for="ContactEmail" type="email" class="form-input" placeholder="Enter contact email" />
+                <span asp-validation-for="ContactEmail" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">🚀 Create Event</button>
+            <button type="reset" class="btn btn-secondary">🔄 Reset Form</button>
+            <a asp-action="Index" class="btn btn-secondary">❌ Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    media (max-width: 768px) {
+        .form-row
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Set minimum date to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('input[type="datetime-local"]');
+            if (dateInput) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                dateInput.min = now.toISOString().slice(0, 16);
+            }
+        });
+    </script>
+}

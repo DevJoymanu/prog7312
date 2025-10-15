@@ -1,0 +1,432 @@
+﻿@model IEnumerable<prog7312_st10161149_part1.Models.Event>
+@{
+    ViewData["Title"] = "Local Events & Announcements";
+}
+
+<div class="page-header">
+    <h1 class="page-title">📅 Local Events & Announcements</h1>
+    <p class="page-subtitle">Stay updated with community events, municipal announcements, and important notices</p>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="search-container">
+    <form asp-action="Index" method="get" class="search-form">
+        <div class="search-grid">
+            <div class="search-field">
+                <label class="search-label">🔍 Search Events</label>
+                <input type="text" name="searchTerm" value="@ViewBag.SearchTerm"
+                       class="form-input" placeholder="Search by title, description, or location..." />
+            </div>
+
+            <div class="search-field">
+                <label class="search-label">🏷️ Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    @foreach (var cat in ViewBag.Categories as Dictionary<string, string>)
+                    {
+                        <option value="@cat.Key" selected="@(ViewBag.SelectedCategory == cat.Key)">
+                            @cat.Value
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="search-field">
+                <label class="search-label">📆 From Date</label>
+                <input type="date" name="startDate" value="@ViewBag.StartDate?.ToString("yyyy-MM-dd")"
+                       class="form-input" />
+            </div>
+
+            <div class="search-actions">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a asp-action="Index" class="btn btn-secondary">Clear</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="actions-bar">
+    <a asp-action="Create" class="btn btn-primary">➕ Create New Event</a>
+    <a asp-action="Calendar" class="btn btn-secondary">📅 Calendar View</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">← Back to Dashboard</a>
+</div>
+
+<!-- Category Statistics -->
+@if (ViewBag.CategoryStats != null)
+{
+    <div class="stats-container">
+        @foreach (var stat in ViewBag.CategoryStats as Dictionary<string, int>)
+        {
+            var categoryName = EventCategories.Categories.ContainsKey(stat.Key)
+            ? EventCategories.Categories[stat.Key]
+            : stat.Key;
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-number">@stat.Value</div>
+                    <div class="stat-label">@categoryName</div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Recently Viewed (Stack) -->
+@if (ViewBag.RecentlyViewed != null && ((List<Event>)ViewBag.RecentlyViewed).Any())
+{
+    <div class="recently-viewed-section">
+        <h3 class="section-title">👁️ Recently Viewed (Last 5)</h3>
+        <div class="recently-viewed-list">
+            @foreach (var evt in (List<Event>)ViewBag.RecentlyViewed)
+            {
+                <a asp-action="Details" asp-route-id="@evt.Id" class="recently-viewed-item">
+                    <span class="item-title">@evt.Title</span>
+                    <span class="item-date">@evt.EventDate.ToString("MMM dd, yyyy")</span>
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<!-- Events List -->
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>No Events Found</h3>
+        <p>@(ViewBag.SearchPerformed == true ? "Try adjusting your search criteria." : "No events are currently scheduled.")</p>
+        @if (ViewBag.SearchPerformed != true)
+        {
+            <a asp-action="Create" class="btn btn-primary">Create First Event</a>
+        }
+    </div>
+}
+else
+{
+    <div class="events-grid">
+        @foreach (var evt in Model)
+        {
+            var isPast = evt.EventDate < DateTime.Now;
+            var isToday = evt.EventDate.Date == DateTime.Now.Date;
+            var isUpcoming = evt.EventDate > DateTime.Now && evt.EventDate < DateTime.Now.AddDays(7);
+
+            <div class="event-card @(isPast ? "event-past" : "")">
+                @if (isToday)
+                {
+                    <div class="event-badge badge-today">📍 TODAY</div>
+                }
+                else if (isUpcoming)
+                {
+                    <div class="event-badge badge-upcoming">⚡ UPCOMING</div>
+                }
+                else if (isPast)
+                {
+                    <div class="event-badge badge-past">📝 PAST</div>
+                }
+
+                <div class="event-header">
+                    <div class="event-category">
+                        @{
+                            var categoryDisplay = EventCategories.Categories.ContainsKey(evt.Category)
+                            ? EventCategories.Categories[evt.Category]
+                            : evt.Category;
+                        }
+                        @categoryDisplay
+                    </div>
+                    @if (evt.ViewCount > 0)
+                    {
+                        <div class="view-count">👁️ @evt.ViewCount</div>
+                    }
+                </div>
+
+                <h3 class="event-title">@evt.Title</h3>
+
+                <div class="event-date-location">
+                    <div class="event-date">
+                        <span class="date-icon">📅</span>
+                        <span>@evt.EventDate.ToString("dddd, MMMM dd, yyyy")</span>
+                    </div>
+                    <div class="event-time">
+                        <span class="time-icon">🕐</span>
+                        <span>@evt.EventDate.ToString("h:mm tt")</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(evt.Location))
+                    {
+                        <div class="event-location">
+                            <span class="location-icon">📍</span>
+                            <span>@evt.Location</span>
+                        </div>
+                    }
+                </div>
+
+                <p class="event-description">
+                    @(evt.Description.Length > 150 ? evt.Description.Substring(0, 150) + "..." : evt.Description)
+                </p>
+
+                @if (!string.IsNullOrEmpty(evt.OrganizerName))
+                {
+                    <div class="event-organizer">
+                        <span class="organizer-label">Organized by:</span>
+                        <span class="organizer-name">@evt.OrganizerName</span>
+                    </div>
+                }
+
+                <div class="event-actions">
+                    <a asp-action="Details" asp-route-id="@evt.Id" class="btn btn-sm btn-primary">View Details</a>
+                    <a asp-action="Edit" asp-route-id="@evt.Id" class="btn btn-sm btn-secondary">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@evt.Id" class="btn btn-sm btn-danger">🗑️ Delete</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .search-container {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .search-form {
+        width: 100%;
+    }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .search-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .search-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .search-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.08);
+        }
+
+    .recently-viewed-section {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .recently-viewed-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .recently-viewed-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+        .recently-viewed-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(4px);
+        }
+
+    .item-title {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .item-date {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .event-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 10px 30px rgba(99,102,241,0.15);
+        }
+
+        .event-card.event-past {
+            opacity: 0.7;
+        }
+
+    .event-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-today {
+        background: rgba(239,68,68,0.2);
+        color: #ef4444;
+        border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    .badge-upcoming {
+        background: rgba(245,158,11,0.2);
+        color: var(--accent-warning);
+        border: 1px solid rgba(245,158,11,0.3);
+    }
+
+    .badge-past {
+        background: rgba(107,114,128,0.2);
+        color: var(--text-muted);
+        border: 1px solid rgba(107,114,128,0.3);
+    }
+
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .event-category {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--accent-primary);
+    }
+
+    .view-count {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .event-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+
+    .event-date-location {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .event-date, .event-time, .event-location {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .event-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .event-organizer {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .organizer-label {
+        color: var(--text-muted);
+    }
+
+    .organizer-name {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .event-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    media (max-width: 768px) {
+        .search-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    }
+</style>

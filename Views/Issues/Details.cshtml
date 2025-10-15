@@ -1,0 +1,235 @@
+﻿prog7312_st10161149_part1
+@model prog7312_st10161149_part1.Models.IssueReport
+@{
+    ViewData["Title"] = "Issue Details";
+}
+
+<div class="details-container">
+    <div class="details-header">
+        <a asp-action="Index" class="back-button">← Back to Issues</a>
+        <h1 class="details-title">Issue Details</h1>
+    </div>
+
+    <div class="details-card">
+        <div class="details-status-bar">
+            <div class="status-badge status-@Model.Status.ToString().ToLower()">
+                @Model.Status
+            </div>
+            <div class="issue-id">Issue #@Model.Id</div>
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-section">
+                <h3 class="section-title">📍 Location</h3>
+                <p class="section-content">@Model.Location</p>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="section-title">🏷️ Category</h3>
+                <p class="section-content">
+                    @{
+                        var categoryDisplay = prog7312_st10161149_part1.Models.IssueCategories.Categories.ContainsKey(Model.Category)
+                        ? prog7312_st10161149_part1.Models.IssueCategories.Categories[Model.Category]
+                        : Model.Category;
+                    }
+                    @categoryDisplay
+                </p>
+            </div>
+
+            <div class="detail-section full-width">
+                <h3 class="section-title">📝 Description</h3>
+                <div class="section-content description-content">
+                    @Model.Description
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.PhotoPath))
+            {
+                <div class="detail-section full-width">
+                    <h3 class="section-title">📸 Attached Photo</h3>
+                    <div class="photo-container">
+                        <img src="@Model.PhotoPath" alt="Issue photo" class="issue-photo" />
+                    </div>
+                </div>
+            }
+
+            <div class="detail-section">
+                <h3 class="section-title">📅 Reported Date</h3>
+                <p class="section-content">@Model.CreatedAt.ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ReporterName))
+            {
+                <div class="detail-section">
+                    <h3 class="section-title">👤 Reported By</h3>
+                    <p class="section-content">@Model.ReporterName</p>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ReporterEmail))
+            {
+                <div class="detail-section">
+                    <h3 class="section-title">📧 Contact Email</h3>
+                    <p class="section-content">
+                        <a href="mailto:@Model.ReporterEmail" class="email-link">@Model.ReporterEmail</a>
+                    </p>
+                </div>
+            }
+        </div>
+
+        <div class="actions-section">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">✏️ Edit Issue</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">🗑️ Delete Issue</a>
+            <a asp-action="Index" class="btn btn-secondary">📋 Back to List</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .details-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .details-header {
+        margin-bottom: 2rem;
+    }
+
+    .details-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-top: 1rem;
+    }
+
+    .details-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .details-status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .issue-id {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .detail-section.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-content {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+
+    .description-content {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        white-space: pre-wrap;
+    }
+
+    .photo-container {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        background: rgba(255,255,255,0.02);
+        padding: 1rem;
+    }
+
+    .issue-photo {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        max-height: 400px;
+        object-fit: contain;
+        background: var(--bg-secondary);
+    }
+
+    .email-link {
+        color: var(--accent-primary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .email-link:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+    .actions-section {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    media (max-width: 768px) {
+        .details-grid
+
+    {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .details-card {
+        padding: 1.5rem;
+    }
+
+    .actions-section {
+        flex-direction: column;
+    }
+
+    .details-status-bar {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    }
+</style>

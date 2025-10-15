@@ -1,0 +1,227 @@
+﻿@model prog7312_st10161149_part1.Models.Event
+@{
+    ViewData["Title"] = "Delete Event";
+}
+
+<div class="delete-container">
+    <div class="delete-header">
+        <a asp-action="Index" class="back-button">← Back to Event</a>
+        <h1 class="delete-title">⚠️ Delete Event</h1>
+    </div>
+
+    <div class="delete-card">
+        <div class="delete-warning">
+            <div class="warning-icon">🗑️</div>
+            <h2>Are you sure you want to delete this event?</h2>
+            <p>This action cannot be undone. The Event and any associated data will be permanently removed.</p>
+        </div>
+
+        <div class="issue-summary">
+            <h3>Issue Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <strong>Location:</strong>
+                    <span>@Model.Location</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Category:</strong>
+                    <span>
+                        @{
+                            var categoryDisplay = prog7312_st10161149_part1.Models.IssueCategories.Categories.ContainsKey(Model.Category)
+                            ? prog7312_st10161149_part1.Models.IssueCategories.Categories[Model.Category]
+                            : Model.Category;
+                        }
+                        @categoryDisplay
+                    </span>
+                </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="description-preview">
+                    <strong>Description:</strong>
+                    <p>@(Model.Description.Length > 200 ? Model.Description.Substring(0, 200) + "..." : Model.Description)</p>
+                </div>
+            }
+        </div>
+
+        <form asp-action="Delete" method="post" class="delete-form">
+            <input type="hidden" asp-for="Id" />
+            <div class="delete-actions">
+                <button type="submit" class="btn btn-danger confirm-delete">🗑️ Yes, Delete Issue</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">👁️ View Details Instead</a>
+                <a asp-action="Index" class="btn btn-secondary">📋 Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .delete-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .delete-header {
+        margin-bottom: 2rem;
+    }
+
+    .delete-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .delete-card {
+        background: var(--glass-bg);
+        border: 1px solid rgba(239,68,68,0.3);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .delete-warning {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding: 2rem;
+        background: rgba(239,68,68,0.1);
+        border: 1px solid rgba(239,68,68,0.2);
+        border-radius: 16px;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+
+    .delete-warning h2 {
+        color: #ef4444;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .delete-warning p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .issue-summary {
+        margin-bottom: 2.5rem;
+    }
+
+        .issue-summary h3 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+        .summary-item strong {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-item span {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+    .description-preview {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+        .description-preview strong {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .description-preview p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+    .delete-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .confirm-delete {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        font-weight: 600;
+    }
+
+        .confirm-delete:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
+        }
+
+    media (max-width: 768px) {
+        .delete-card
+
+    {
+        padding: 1.5rem;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .delete-actions {
+        flex-direction: column;
+    }
+
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.querySelector('.confirm-delete');
+        const deleteForm = document.querySelector('.delete-form');
+
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const confirmation = confirm('Are you absolutely sure? This action cannot be undone!');
+            if (confirmation) {
+                deleteButton.disabled = true;
+                deleteButton.innerHTML = '⏳ Deleting...';
+                deleteForm.submit();
+            }
+        });
+    });
+</script>

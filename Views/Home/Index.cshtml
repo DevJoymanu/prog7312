@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Municipal Services";
+}
+
+<div class="main-view">
+    <div class="page-header">
+        <h1 class="page-title">Municipal Services</h1>
+        <p class="page-subtitle">Seamless citizen engagement and efficient municipal service delivery across South Africa.</p>
+    </div>
+
+    @if (ViewBag.TotalIssues != null && ViewBag.TotalIssues > 0)
+    {
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-number">@ViewBag.TotalIssues</div>
+                    <div class="stat-label">Total Issues</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-number">@ViewBag.PendingIssues</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-number">@ViewBag.ResolvedIssues</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="services-container">
+        <div class="service-card enabled" onclick="location.href='@Url.Action("Create", "Issues")'">
+            <div class="service-header">
+                <div class="service-icon">🏛️</div>
+                <div class="service-status status-live">Live</div>
+            </div>
+            <h3 class="service-title">Report Issues</h3>
+            <p class="service-description">Report infrastructure problems, service disruptions, and community issues directly with photo attachments.</p>
+        </div>
+
+        <div class="service-card enabled" onclick="location.href='@Url.Action("Index", "Issues")'">
+            <div class="service-header">
+                <div class="service-icon">📋</div>
+                <div class="service-status status-live">Live</div>
+            </div>
+            <h3 class="service-title">View Reported Issues</h3>
+            <p class="service-description">Browse all reported issues and track their resolution status in real-time.</p>
+        </div>
+
+        <!-- Updated: Local Events card enabled -->
+        <div class="service-card enabled" onclick="location.href='@Url.Action("Index", "Events")'">
+            <div class="service-header">
+                <div class="service-icon">📅</div>
+                <div class="service-status status-live">Live</div>
+            </div>
+            <h3 class="service-title">Local Events & Announcements</h3>
+            <p class="service-description">Stay updated with community events, municipal announcements, public meetings, and important notices.</p>
+        </div>
+
+        <div class="service-card disabled">
+            <div class="service-header">
+                <div class="service-icon">🔍</div>
+                <div class="service-status status-soon">Coming Soon</div>
+            </div>
+            <h3 class="service-title">Advanced Issue Tracking</h3>
+            <p class="service-description">Track your specific submissions with detailed progress updates and estimated completion times.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 10px 30px rgba(99,102,241,0.15);
+        }
+
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.8;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    media (max-width: 768px) {
+        .stats-container
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>

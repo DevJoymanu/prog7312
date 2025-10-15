@@ -1,0 +1,223 @@
+﻿@model IEnumerable<prog7312_st10161149_part1.Models.IssueReport>
+@{
+    ViewData["Title"] = "Reported Issues";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Reported Issues</h1>
+    <p class="page-subtitle">Track community issues and their resolution progress</p>
+</div>
+
+<div class="actions-bar">
+    <a asp-action="Create" class="btn btn-primary">🏛️ Report New Issue</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">← Back to Dashboard</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No Issues Reported Yet</h3>
+        <p>Be the first to report a community issue and help improve municipal services.</p>
+        <a asp-action="Create" class="btn btn-primary">Report First Issue</a>
+    </div>
+}
+else
+{
+    <div class="issues-grid">
+        @foreach (var issue in Model)
+        {
+            <div class="issue-card">
+                <div class="issue-header">
+                    <div class="issue-category">
+                        @{
+                            var categoryDisplay = prog7312_st10161149_part1.Models.IssueCategories.Categories.ContainsKey(issue.Category)
+                            ? prog7312_st10161149_part1.Models.IssueCategories.Categories[issue.Category]
+                            : issue.Category;
+                        }
+                        @categoryDisplay
+                    </div>
+                    <div class="issue-status status-@issue.Status.ToString().ToLower()">
+                        @issue.Status
+                    </div>
+                </div>
+
+                <h3 class="issue-location">📍 @issue.Location</h3>
+                <p class="issue-description">@(issue.Description.Length > 150 ? issue.Description.Substring(0, 150) + "..." : issue.Description)</p>
+
+                @if (!string.IsNullOrEmpty(issue.PhotoPath))
+                {
+                    <div class="issue-photo">
+                        <img src="@issue.PhotoPath" alt="Issue photo" class="photo-thumbnail" />
+                    </div>
+                }
+
+                <div class="issue-meta">
+                    <div class="issue-date">
+                        <span class="meta-label">Reported:</span>
+                        <span class="meta-value">@issue.CreatedAt.ToString("MMM dd, yyyy")</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(issue.ReporterName))
+                    {
+                        <div class="issue-reporter">
+                            <span class="meta-label">By:</span>
+                            <span class="meta-value">@issue.ReporterName</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="issue-actions">
+                    <a asp-action="Details" asp-route-id="@issue.Id" class="btn btn-sm btn-secondary">👁️ View</a>
+                    <a asp-action="Edit" asp-route-id="@issue.Id" class="btn btn-sm btn-primary">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@issue.Id" class="btn btn-sm btn-danger">🗑️ Delete</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .actions-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        backdrop-filter: blur(20px);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .issues-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .issue-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .issue-card:hover {
+        transform: translateY(-4px);
+        background: rgba(255,255,255,0.08);
+        box-shadow: 0 10px 30px rgba(99,102,241,0.15);
+    }
+
+    .issue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .issue-category {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--accent-primary);
+    }
+
+    .issue-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .status-submitted { background: rgba(99,102,241,0.2); color: var(--accent-primary); }
+    .status-inprogress { background: rgba(245,158,11,0.2); color: var(--accent-warning); }
+    .status-resolved { background: rgba(16,185,129,0.2); color: var(--accent-success); }
+    .status-closed { background: rgba(107,114,128,0.2); color: var(--text-muted); }
+
+    .issue-location {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+    }
+
+    .issue-description {
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .issue-photo {
+        margin-bottom: 1rem;
+    }
+
+    .photo-thumbnail {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .issue-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .meta-label {
+        color: var(--text-muted);
+    }
+
+    .meta-value {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .issue-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-danger {
+        background: rgba(239,68,68,0.2);
+        color: #ef4444;
+        border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    .btn-danger:hover {
+        background: rgba(239,68,68,0.3);
+        transform: translateY(-1px);
+    }
+</style>
